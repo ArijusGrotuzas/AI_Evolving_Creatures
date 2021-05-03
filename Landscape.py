@@ -75,6 +75,7 @@ def create_landscape(size, threshold, amplitude):
 
 def main():
     land = create_landscape(50, 0.45, 0.1)
+    print(land)
 
 
 if __name__ == '__main__':
