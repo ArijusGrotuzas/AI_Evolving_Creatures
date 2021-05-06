@@ -1,11 +1,55 @@
+from AStar import *
+import math
+import numpy as np
 import random
 import string
 
 
+# Function for calculating magnitude of a vector
+def magnituted(vector_2d):
+    (x, y) = vector_2d
+    mag = math.sqrt(pow(x, 2) + pow(y, 2))
+    return mag
+
+
+# Function to subtract twp tuples
+def difference(a, b):
+    diff = tuple(map(lambda i, j: i - j, a, b))
+    return diff
+
+
+# Class for the predator agent
+class predator:
+    def __init__(self, starting_pos):
+        self.pos = starting_pos
+        self.target = None
+        self.path = []
+
+    def find_closest_target(self, prey):
+        target = None
+        smallest_dist = 10000
+
+        for p in prey:
+            for i in p.individuals:
+                diff = difference(i.pos, self.pos)
+                dist = magnituted(diff)
+                if dist < smallest_dist:
+                    smallest_dist = dist
+                    target = i.pos
+
+        self.target = target
+
+    def calculate_target_path(self, landscape):
+        self.path = astar(landscape, self.pos, self.target)
+
+
 class individual:
     def __init__(self, chromosome):
-        self.chromosome = chromosome
+        self.chromosome = chromosome  # Chromosome is an array of values for different attributes of individual
+        # [0] - color, [1] - speed, [2] - vision
         self.fitness = self.asses_fitness(self.chromosome)
+        self.parent_pos = (0, 0)
+        self.pos = (0, 0)
         self.name = self.rand_name(3)
 
     @staticmethod
@@ -21,6 +65,59 @@ class individual:
         name = ''.join(random.choice(string.ascii_letters) for _ in range(size))
         return name
 
+    def move_random(self, land):
+        land_size = len(land)
+        spawned = False
+        iterations = 0
+
+        while not spawned and iterations < 1000:
+            x_dir = random.randint(-1, 1)
+            z_dir = random.randint(-1, 1)
+
+            new_pos = (self.pos[0] + x_dir, self.pos[1] + z_dir)
+
+            if -1 < new_pos[0] < land_size and -1 < new_pos[1] < land_size:
+                if land[new_pos[0]][new_pos[1]] != 1:
+                    spawned = True
+                    self.pos = new_pos
+
+            iterations += 1
+
+    def new_random_pos(self, land):
+        land_size = len(land)
+        spawned = False
+
+        while not spawned:
+            x_pos = random.randint(0, land_size)
+            z_pos = random.randint(0, land_size)
+
+            if -1 < x_pos < land_size and -1 < z_pos < land_size:
+                if land[x_pos][z_pos] != 1:
+                    spawned = True
+                    self.pos = (x_pos, z_pos)
+
+    def spawn_near_parent(self, land):
+        spawned = False
+        for i in range(self.parent_pos[0] - 3, self.parent_pos[0] + 3):
+            for j in range(self.parent_pos[1] - 3, self.parent_pos[1] + 3):
+                try:
+                    if land[i][j] != 1:
+                        self.pos = (i, j)
+                        spawned = True
+                except IndexError:
+                    continue
+
+        if not spawned:
+            self.new_random_pos(land)
+
+    def predator_in_sight(self, ppos):
+        diff = difference(ppos, self.pos)
+        dist = magnituted(diff)
+        if dist < self.chromosome[2]:
+            return True
+        else:
+            return False
+
 
 class population:
     def __init__(self, size, chromo_size, max_value):
@@ -29,7 +126,7 @@ class population:
 
     @staticmethod
     def random_individuals(size, chromo_size, max_value):
-        return [individual([random.randint(1, max_value) for _ in range(chromo_size)]) for _ in range(size)]
+        return [individual([random.randint(0, max_value) for _ in range(chromo_size)]) for _ in range(size)]
 
 
 def get_most_fit(populous):
@@ -78,33 +175,14 @@ def genetic_algorithm(pop, offset):
     new_pop.generation_age = pop.generation_age + 1
 
     # Spawning a number of children based on what the size of this generation should be
-    for i in range(offspring_number):
+    for i in range(len(pop.individuals)):
         first_parent = random_selection(pop)
         second_parent = random_selection(pop)
         child = reproduce(first_parent, second_parent)
         chance = random.uniform(0, 1)
         if chance < mutation_probability:
-            mutate(child, 10)
+            mutate(child, 4)
+        child.parent_pos = first_parent.pos
         new_pop.individuals.append(child)
 
     return new_pop
-
-
-def main():
-    pop = population(10, 3, 10)
-    print("Old generation: \n")
-    for i in pop.individuals:
-        print(i.name)
-        print(i.fitness)
-        print("\n")
-
-    print("\n \nNew generation: \n")
-    new_pop = genetic_algorithm(pop, 5)
-    for i in new_pop.individuals:
-        print(i.name)
-        print(i.fitness)
-        print("\n")
-
-
-if __name__ == '__main__':
-    main()

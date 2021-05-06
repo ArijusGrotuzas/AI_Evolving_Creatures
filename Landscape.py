@@ -1,6 +1,5 @@
+import random
 import math
-import numpy
-import cv2
 
 
 def cosine_interpolation(a, b, t):
@@ -50,7 +49,7 @@ def perlin(x, y):
     return cosine_interpolation(ix0, ix1, sy)
 
 
-def create_landscape(size, threshold, amplitude):
+def create_landscape(size, threshold, amplitude, tree_ratio):
     landscape = [[0 for _ in range(size)] for __ in range(size)]
 
     for i in range(size):
@@ -61,22 +60,40 @@ def create_landscape(size, threshold, amplitude):
             n /= 2.0
 
             if n > threshold:
-                landscape[i][j] = 1.0
+                chance = random.uniform(0, 1)
+
+                if chance > tree_ratio:
+                    landscape[i][j] = 2.0
+                else:
+                    landscape[i][j] = 0.0
+
             else:
-                landscape[i][j] = 0.0
+                landscape[i][j] = 1.0
 
     return landscape
-    # perlin_noise = numpy.array(landscape)
-    # print(landscape)
-    # cv2.imshow('perlin', cv2.resize(perlin_noise, (800, 800), interpolation=cv2.INTER_AREA))
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
 
 
-def main():
-    land = create_landscape(50, 0.45, 0.1)
-    print(land)
+# Function for copying landscape without tree values
+def copy_landscape(arr):
+    size = len(arr)
+    new_land = [[0 for _ in range(size)] for __ in range(size)]
+    for i in range(size):
+        for j in range(size):
+            if arr[i][j] == 0:
+                new_land[i][j] = 0
+            elif arr[i][j] == 1:
+                new_land[i][j] = 1
+            elif arr[i][j] == 2:
+                new_land[i][j] = 1
+
+    return new_land
 
 
-if __name__ == '__main__':
-    main()
+# Function for creating a landscape with all bunny locations
+def land_w_bunnies(land, pop):
+    new_land = copy_landscape(land)
+    for p in pop:
+        for i in p.individuals:
+            new_land[i.pos[0]][i.pos[1]] = 1
+
+    return new_land
