@@ -94,6 +94,6 @@ def land_w_bunnies(land, pop):
     new_land = copy_landscape(land)
     for p in pop:
         for i in p.individuals:
-            new_land[i.pos[0]][i.pos[1]] = 1
+            new_land[i.new_pos[0]][i.new_pos[1]] = 1
 
     return new_land

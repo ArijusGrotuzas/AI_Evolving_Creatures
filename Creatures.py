@@ -22,8 +22,11 @@ def difference(a, b):
 class predator:
     def __init__(self, starting_pos):
         self.pos = starting_pos
+        self.new_pos = starting_pos
+        self.positions_diff = difference(self.pos, self.new_pos)
         self.target = None
         self.path = []
+        self.hunger = 1
 
     def find_closest_target(self, prey):
         target = None
@@ -39,8 +42,14 @@ class predator:
 
         self.target = target
 
+    def posfloat_to_int(self):
+        self.pos = (int(self.pos[0]), int(self.pos[1]))
+
     def calculate_target_path(self, landscape):
         self.path = astar(landscape, self.pos, self.target)
+
+    def set_position_diff(self):
+        self.positions_diff = difference(self.new_pos, self.pos)
 
 
 class individual:
@@ -50,6 +59,8 @@ class individual:
         self.fitness = self.asses_fitness(self.chromosome)
         self.parent_pos = (0, 0)
         self.pos = (0, 0)
+        self.new_pos = (0, 0)
+        self.positions_diff = (0, 0)
         self.name = self.rand_name(3)
 
     @staticmethod
@@ -79,7 +90,12 @@ class individual:
             if -1 < new_pos[0] < land_size and -1 < new_pos[1] < land_size:
                 if land[new_pos[0]][new_pos[1]] != 1:
                     spawned = True
-                    self.pos = new_pos
+                    self.new_pos = new_pos
+                    self.positions_diff = difference(new_pos, self.pos)
+                else:
+                    self.positions_diff = (0, 0)
+            else:
+                self.positions_diff = (0, 0)
 
             iterations += 1
 
@@ -95,14 +111,17 @@ class individual:
                 if land[x_pos][z_pos] != 1:
                     spawned = True
                     self.pos = (x_pos, z_pos)
+                    self.new_pos = (x_pos, z_pos)
 
     def spawn_near_parent(self, land):
         spawned = False
+        self.parent_pos = (int(self.parent_pos[0]), int(self.parent_pos[1]))
         for i in range(self.parent_pos[0] - 3, self.parent_pos[0] + 3):
             for j in range(self.parent_pos[1] - 3, self.parent_pos[1] + 3):
                 try:
                     if land[i][j] != 1:
                         self.pos = (i, j)
+                        self.new_pos = (i, j)
                         spawned = True
                 except IndexError:
                     continue
@@ -110,13 +129,34 @@ class individual:
         if not spawned:
             self.new_random_pos(land)
 
-    def predator_in_sight(self, ppos):
-        diff = difference(ppos, self.pos)
+    def predator_in_sight(self, predator_pos):
+        diff = difference(predator_pos, self.pos)
         dist = magnituted(diff)
         if dist < self.chromosome[2]:
             return True
         else:
             return False
+
+    def run(self, predator_pos, land):
+        furthest_pos = self.pos
+        furthest_dist = 0
+
+        for i in range(self.pos[0] - self.chromosome[1], self.pos[0] + self.chromosome[1]):
+            for j in range(self.pos[1] - self.chromosome[1], self.pos[1] + self.chromosome[1]):
+                try:
+                    if min(i, j) < 0:
+                        continue
+                    if land[i][j] != 1:
+                        diff = difference(predator_pos, (i, j))
+                        dist = magnituted(diff)
+                        if dist > furthest_dist:
+                            furthest_pos = (i, j)
+                            furthest_dist = dist
+                except IndexError:
+                    continue
+
+        self.new_pos = furthest_pos
+        self.positions_diff = difference(self.new_pos, self.pos)
 
 
 class population:
@@ -127,6 +167,14 @@ class population:
     @staticmethod
     def random_individuals(size, chromo_size, max_value):
         return [individual([random.randint(0, max_value) for _ in range(chromo_size)]) for _ in range(size)]
+
+    def get_average_fitness(self):
+        total_fitness = 0
+        for i in self.individuals:
+            total_fitness += i.fitness
+
+        avg_fitness = total_fitness / len(self.individuals)
+        return avg_fitness
 
 
 def get_most_fit(populous):
@@ -175,7 +223,7 @@ def genetic_algorithm(pop, offset):
     new_pop.generation_age = pop.generation_age + 1
 
     # Spawning a number of children based on what the size of this generation should be
-    for i in range(len(pop.individuals)):
+    for i in range( offspring_number):
         first_parent = random_selection(pop)
         second_parent = random_selection(pop)
         child = reproduce(first_parent, second_parent)
