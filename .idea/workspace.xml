@@ -4,8 +4,6 @@
     <list default="true" id="fd089580-6353-4577-8058-c970cf8ddcfd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Creatures.py" beforeDir="false" afterPath="$PROJECT_DIR$/Creatures.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Landscape.py" beforeDir="false" afterPath="$PROJECT_DIR$/Landscape.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

@@ -34,11 +34,11 @@ class predator:
 
         for p in prey:
             for i in p.individuals:
-                diff = difference(i.pos, self.pos)
+                diff = difference(i.new_pos, self.pos)
                 dist = magnituted(diff)
                 if dist < smallest_dist:
                     smallest_dist = dist
-                    target = i.pos
+                    target = i.new_pos
 
         self.target = target
 
