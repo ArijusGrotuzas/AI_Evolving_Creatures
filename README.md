@@ -3,8 +3,8 @@
 The mini-project features an evolving creatures simulation using a genetic algorithm, and A* path finding. The simulation involves two types of agents, a predator, and a prey agent respectively. The environment features accessible and obstacle tiles, where the size is determined by a 20 x 20 grid. The simulation ends once all of the prey agents reach maximum fitness and make the predator agent die of starvation, or when the predator agent consumes all the preys.
 
 # Contents
-- [A*](A*)
-- [Genetic-algorithm](Genetic-algorithm)
+- [A*](#A*)
+- [Genetic-algorithm](#Genetic-algorithm)
 
 ## A*
 
