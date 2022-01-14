@@ -18,6 +18,6 @@ The A* pathfinding algorithm is an informed search algorithm, meaning it doesnot
 
 `Genetic algorithm for evolving the prey agents, so that they can become better at avoiding the predator:`
 
-`GA` generates new states by combining two parent states,rather than modifying an existing state, which is the case with many optimizationalgorithms. The algorithm takes a population of candidates that serve as a potentialsolutions to a search or an optimization problem and evolves them to better solutionsuntil a most optimal solution is found or a certain amount of time has elapsed
+`GA` generates new states by combining two parent states,rather than modifying an existing state, which is the case with many optimizationalgorithms. The algorithm takes a population of candidates that serve as a potentialsolutions to a search or an optimization problem and evolves them to better solutions until a most optimal solution is found or a certain amount of time has elapsed
 
 ![alt text](https://github.com/ArijusGrotuzas/AI_Evolving_Creatures/blob/main/Examples/AI%20example4.gif?raw=true)
